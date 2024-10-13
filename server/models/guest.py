@@ -25,8 +25,8 @@ class Guest(db.Model, SerializerMixin):
     
     # Validates to ensure guest occupation firld is not empty
     @validates('occupation')
-    def validate_name(self, key, occupation):
-        if not occupation:
+    def validate_occupation(self, key, occupation):
+        if not occupation or occupation.strip() == '':
             raise ValueError("Guest occupation cannot be empty.")
         return occupation
     
