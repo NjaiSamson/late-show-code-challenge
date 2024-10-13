@@ -25,11 +25,19 @@ class Appearance(db.Model, SerializerMixin):
     @validates('rating')
     def validate_rating(self, key, rating):
         allowed_rating = [1,2,3,4,5]
-        if not rating or rating.strip() == '':
-            raise ValueError("Ratings cannot be empty")
+        if rating is None:
+            raise ValueError("Rating field cannot be empty.")
+                
+        # Check if rating is an integer
+        if not isinstance(rating, int):
+            raise ValueError("Rating must be an integer.")
         
-        if not any(rate in rating for rate in allowed_rating):
-            raise ValueError("That value rating is not allowed")
+        # Check if rating is withing the required limits
+        if rating not in allowed_rating:
+            raise ValueError(f"Rating must be between {min(allowed_rating)} and {max(allowed_rating)}.")
+        
+        return rating       
+        
     
     def __repr__(self):
         return f'Episode rating {self.rating} rate id {self.id}'  
