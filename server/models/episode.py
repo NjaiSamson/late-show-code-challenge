@@ -20,13 +20,23 @@ class Episode(db.Model, SerializerMixin):
     @validates('date')
     def validate_date(self, key, date):
         if not date or date.strip() == '':
-            raise ValueError("Date field must be a string and connot be empty.")
+            raise ValueError("Date field must be a string and cannot be empty.")
+        
+        # Check if date is a string
+        if not isinstance(date, str):
+            raise ValueError("Number must be an a string.")        
         return date
     
+    # Validating the number
     @validates('number')
     def validate_number(self, key, number):
-        if not number or number.strip() == '':
-            raise ValueError("Number must be an integer and the filed connot be enmpty.")
+        if number is None:
+            raise ValueError("Number field cannot be empty.")
+        
+        # Check if number is an integer
+        if not isinstance(number, int):
+            raise ValueError("Number must be an integer.")
+        
         return number
     
     def __repr__(self):
