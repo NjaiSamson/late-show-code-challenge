@@ -21,15 +21,15 @@ class Appearance(db.Model, SerializerMixin):
     guest = db.relationship('Guest', back_populates="episodes")
     episode = db.relationship('Episode', back_populates="guests")
     
-    # validating ratings
+    # validating  if it is between 1 to 5
     @validates('rating')
-    def validate_strength_field(self, key, rating):
+    def validate_rating(self, key, rating):
         allowed_rating = [1,2,3,4,5]
         if not rating or rating.strip() == '':
-            raise ValueError("Ratings can not be empty")
+            raise ValueError("Ratings cannot be empty")
         
         if not any(rate in rating for rate in allowed_rating):
             raise ValueError("That value rating is not allowed")
     
     def __repr__(self):
-        return f'Guest rating {self.rating} rate id {self.id}'  
+        return f'Episode rating {self.rating} rate id {self.id}'  
