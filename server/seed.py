@@ -16,16 +16,16 @@ if __name__ == '__main__':
 
         # Create sample guests 
         guests = [
-            Guest(name="John Doe", occupation="Actor"),
-            Guest(name="Jane Smith", occupation="Musician"),
-            Guest(name="Chris Johnson", occupation="Comedian"),
-            Guest(name="Emily Clark", occupation="Author"),
-            Guest(name="Michael Brown", occupation="Director"),
-            Guest(name="Anna Taylor", occupation="Producer"),
-            Guest(name="David White", occupation="Singer"),
-            Guest(name="Sara Green", occupation="Dancer"),
-            Guest(name="Mark Thompson", occupation="Photographer"),
-            Guest(name="Sophia Lee", occupation="Influencer")
+            Guest(name="John Mwangi", occupation="Actor"),
+            Guest(name="Jane Achieng", occupation="Musician"),
+            Guest(name="Chris Mutua", occupation="Comedian"),
+            Guest(name="Emily Chebet", occupation="Author"),
+            Guest(name="Michael Juma", occupation="Director"),
+            Guest(name="Anna Muteti", occupation="Producer"),
+            Guest(name="David Mutisya", occupation="Singer"),
+            Guest(name="Sara Wairimu", occupation="Dancer"),
+            Guest(name="Mark Silisya", occupation="Photographer"),
+            Guest(name="Sophia Mutheu", occupation="Influencer")
         ]
 
         # Create sample episodes
