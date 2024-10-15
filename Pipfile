@@ -12,6 +12,7 @@ werkzeug = "*"
 importlib-metadata = "*"
 importlib-resources = "*"
 sqlalchemy-serializer = "*"
+flask-restful = "*"
 
 [dev-packages]
 
