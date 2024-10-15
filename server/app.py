@@ -23,20 +23,10 @@ api = Api(app)
 
 # Homepage route
 class HomePage(Resource):
-
     def get(self):
-
-        response_dict = {
-            "message": "Welcome to the Late Show API",
-        }
-
-        response = make_response(
-            response_dict,
-            200
-        )
-
+        response_dict = {"message": "Welcome to the Late Show API",}
+        response = make_response(response_dict, 200)
         return response
-
 api.add_resource(HomePage, '/')
 
 class Episodes(Resource):
@@ -54,6 +44,60 @@ class Episodes(Resource):
         return response
 
 api.add_resource(Episodes, '/episodes')
+
+class EpisodeByID(Resource):
+    def get(self, id):
+        # Fetch the episode by its id, including appearances and related guests
+        episode = Episode.query.filter_by(id=id).first()
+
+        if not episode:
+            return make_response(jsonify({"errors": ["Episode not found"]}), 404)
+
+        # Prepare the appearances data
+        appearances_list = []
+        for appearance in episode.guests:  # 'guests' is the relationship in Episode model
+            appearances_list.append({
+                "id": appearance.id,
+                "rating": appearance.rating,
+                "episode_id": appearance.episode_id,
+                "guest_id": appearance.guest_id,
+                "guest": {
+                    "id": appearance.guest.id,
+                    "name": appearance.guest.name,
+                    "occupation": appearance.guest.occupation
+                }
+            })
+
+        # Prepare the response data
+        response_dict = {
+            "id": episode.id,
+            "date": episode.date,
+            "number": episode.number,
+            "appearances": appearances_list
+        }
+
+        # Return the response
+        return make_response(jsonify(response_dict), 200)
+    
+    def delete(self, id):
+        # Fetch the episode by its id
+        episode = Episode.query.filter_by(id=id).first()
+
+        if not episode:
+            return make_response(jsonify({"errors": ["Episode not found"]}), 404)
+
+        try:
+            # Delete the episode 
+            db.session.delete(episode)
+            db.session.commit()
+            return make_response(jsonify({"message": "Episode deleted successfully"}), 200)
+
+        except Exception as e:
+            db.session.rollback()  
+            return make_response(jsonify({"errors": [str(e)]}), 500)
+
+api.add_resource(EpisodeByID, '/episodes/<int:id>')
+
 
 # Guests route
 class Guests(Resource):
