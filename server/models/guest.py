@@ -19,7 +19,7 @@ class Guest(db.Model, SerializerMixin):
     # Validates to ensure guest name is not empty
     @validates('name')
     def validate_name(self, key, name):
-        if not name:
+        if not name or name.strip() == '':
             raise ValueError("Guest must have a name")
         return name
     

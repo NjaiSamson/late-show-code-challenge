@@ -6,6 +6,9 @@ from utils.dbconfig import db
 class Episode(db.Model, SerializerMixin):
     __tablename__ = 'episodes'
     
+    # Limit recursion 
+    serialize_rules = ('-guests.episode',)
+    
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String, nullable=False)
     number = db.Column(db.Integer, nullable=False)
@@ -13,8 +16,7 @@ class Episode(db.Model, SerializerMixin):
     # Relationship mapping guest to related episode
     guests = db.relationship('Appearance', back_populates='episode', cascade='all, delete-orphan')
     
-    # Limit recursion 
-    serialize_rules = ('-guests.episode',)
+    
     
     # validating date
     @validates('date')

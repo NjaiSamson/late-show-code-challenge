@@ -8,7 +8,7 @@ class Appearance(db.Model, SerializerMixin):
     __tablename__ = 'appearances'
     
     # Limiting recursion 
-    serialize_rules = ('-hero.powers', '-power.heroes')
+    serialize_rules = ('-guest.episodes', '-episode.guests',)
     
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Integer, nullable=False)
@@ -24,7 +24,6 @@ class Appearance(db.Model, SerializerMixin):
     # validating  if it is between 1 to 5
     @validates('rating')
     def validate_rating(self, key, rating):
-        allowed_rating = [1,2,3,4,5]
         if rating is None:
             raise ValueError("Rating field cannot be empty.")
                 
@@ -33,8 +32,8 @@ class Appearance(db.Model, SerializerMixin):
             raise ValueError("Rating must be an integer.")
         
         # Check if rating is withing the required limits
-        if rating not in allowed_rating:
-            raise ValueError(f"Rating must be between {min(allowed_rating)} and {max(allowed_rating)}.")
+        if rating < 1 or rating > 5:
+            raise ValueError(f"Rating must be between a nd 5")
         
         return rating       
         
