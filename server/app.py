@@ -55,6 +55,23 @@ class Episodes(Resource):
 
 api.add_resource(Episodes, '/episodes')
 
+# Guests route
+class Guests(Resource):
+    # Getting guests
+    def get(self):
+        guest_list = []
+        for guest in Guest.query.all():
+            guest_list.append({
+                "id": guest.id,
+                "name": guest.name,
+                "occupation": guest.occupation                
+            })
+            response = make_response(guest_list, 200,
+        )
+        return response
+
+api.add_resource(Guests, '/guests')
+
 # Appearance posting route
 class Appearances(Resource):
     def post(self):
