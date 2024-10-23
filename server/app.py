@@ -22,62 +22,30 @@ db.init_app(app)
 api = Api(app)
 
 # Homepage route
-class HomePage(Resource):
+class Index(Resource):
     def get(self):
         response_dict = {"message": "Welcome to the Late Show API",}
         response = make_response(response_dict, 200)
         return response
-api.add_resource(HomePage, '/')
+api.add_resource(Index, '/')
 
 class Episodes(Resource):
     # Getting episodes
     def get(self):
-        episode_list = []
-        for episode in Episode.query.all():
-            episode_list.append({
-                "id": episode.id,
-                "date": episode.date,
-                "number": episode.number                
-            })
-            response = make_response(episode_list, 200,
-        )
-        return response
+        episode_list = Episode.query.all()
+        return make_response(jsonify([episode.to_dict() for episode in episode_list]))
 
 api.add_resource(Episodes, '/episodes')
 
+
 class EpisodeByID(Resource):
     def get(self, id):
-        # Fetch the episode by its id, including appearances and related guests
-        episode = Episode.query.filter_by(id=id).first()
-
-        if not episode:
-            return make_response(jsonify({"errors": ["Episode not found"]}), 404)
-
-        # Prepare the appearances data
-        appearances_list = []
-        for appearance in episode.guests:  # 'guests' is the relationship in Episode model
-            appearances_list.append({
-                "id": appearance.id,
-                "rating": appearance.rating,
-                "episode_id": appearance.episode_id,
-                "guest_id": appearance.guest_id,
-                "guest": {
-                    "id": appearance.guest.id,
-                    "name": appearance.guest.name,
-                    "occupation": appearance.guest.occupation
-                }
-            })
-
-        # Prepare the response data
-        response_dict = {
-            "id": episode.id,
-            "date": episode.date,
-            "number": episode.number,
-            "appearances": appearances_list
-        }
-
-        # Return the response
-        return make_response(jsonify(response_dict), 200)
+        episode_by_id = Episode.query.get(id)
+        if not episode_by_id:
+            return make_response(jsonify({"error": "Episode not found"}), 404)
+        else:
+            # Return episode information along with guests
+            return make_response(jsonify(episode_by_id.to_dict(guests_appeared=True)), 200)
     
     def delete(self, id):
         # Fetch the episode by its id
@@ -103,16 +71,8 @@ api.add_resource(EpisodeByID, '/episodes/<int:id>')
 class Guests(Resource):
     # Getting guests
     def get(self):
-        guest_list = []
-        for guest in Guest.query.all():
-            guest_list.append({
-                "id": guest.id,
-                "name": guest.name,
-                "occupation": guest.occupation                
-            })
-            response = make_response(guest_list, 200,
-        )
-        return response
+        guest_list = Guest.query.all()
+        return make_response(jsonify([guest.to_dict() for guest in guest_list]), 200)
 
 api.add_resource(Guests, '/guests')
 
@@ -120,14 +80,16 @@ api.add_resource(Guests, '/guests')
 class Appearances(Resource):
     def post(self):
         try:
-            # Collecting data form the user form
-            rating = request.form.get('rating')
-            guest_id = request.form.get('guest_id')
-            episode_id = request.form.get('episode_id')
+            # Collecting data from the JSON body
+            data = request.get_json()
+
+            rating = data.get('rating')
+            guest_id = data.get('guest_id')
+            episode_id = data.get('episode_id')
 
             # Validate required fields
-            if not rating or not guest_id or not episode_id:
-                return make_response(jsonify({"errors": ["Missing required fields"]}), 400)
+            if rating is None or guest_id is None or episode_id is None:
+                return make_response(jsonify({"errors": ["Required field missing"]}), 400)
 
             # Convert guest_id, episode_id, and rating to integers
             try:
@@ -153,7 +115,7 @@ class Appearances(Resource):
             # Checking for duplicates
             duplicate_appearance = Appearance.query.filter_by(guest_id=guest_id, episode_id=episode_id).first()
             if duplicate_appearance:
-                return make_response(jsonify({"errors": ["Duplicate appearance for the guest and episode on this date"]}), 400)
+                return make_response(jsonify({"errors": ["Duplicate appearance for this guest and episode on this date. Note that a guest can appear only once for a given episode at a particular date."]}), 400)
 
             # Create a new Appearance record
             new_appearance = Appearance(

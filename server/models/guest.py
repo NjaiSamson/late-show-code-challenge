@@ -14,7 +14,7 @@ class Guest(db.Model, SerializerMixin):
     occupation = db.Column(db.String, nullable=False)
     
     # Relationship mapping the a guest to the related episodes
-    episodes = db.relationship('Appearance', back_populates="guest", cascade='all, delete-orphan' )
+    appearances = db.relationship('Appearance', backref="guest", cascade='all, delete-orphan' )
     
     # Validates to ensure guest name is not empty
     @validates('name')
@@ -29,6 +29,14 @@ class Guest(db.Model, SerializerMixin):
         if not occupation or occupation.strip() == '':
             raise ValueError("Guest occupation cannot be empty.")
         return occupation
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'occupation': self.occupation
+    }
+
     
     def __repr__(self):
         return f'Guest {self.name} with coocupation {self.occupation}'  

@@ -14,11 +14,9 @@ class Episode(db.Model, SerializerMixin):
     number = db.Column(db.Integer, nullable=False)
     
     # Relationship mapping guest to related episode
-    guests = db.relationship('Appearance', back_populates='episode', cascade='all, delete-orphan')
+    appearances = db.relationship('Appearance', backref='episode', cascade='all, delete-orphan')
     
-    
-    
-    # validating date
+    # Validating date
     @validates('date')
     def validate_date(self, key, date):
         if not date or date.strip() == '':
@@ -26,7 +24,7 @@ class Episode(db.Model, SerializerMixin):
         
         # Check if date is a string
         if not isinstance(date, str):
-            raise ValueError("Number must be an a string.")        
+            raise ValueError("Date must be a string.")        
         return date
     
     # Validating the number
@@ -41,5 +39,17 @@ class Episode(db.Model, SerializerMixin):
         
         return number
     
+    def to_dict(self, guests_appeared=False):
+        episode_info = {
+            "id": self.id,
+            "date": self.date,
+            "number": self.number
+        }
+        if guests_appeared:
+            # Include all guests related to this episode through the Appearance model
+            episode_info['guests'] = [appearance.guest.to_dict() for appearance in self.appearances]
+        return episode_info
+ 
+    
     def __repr__(self):
-        return f'Episode  {self.number} for date {self.date}'  
+        return f'Episode {self.number} for date {self.date}'
